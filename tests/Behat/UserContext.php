@@ -329,7 +329,7 @@ class UserContext implements Context
     }
 
     /**
-     * @When I edit my profile with the name :arg1
+     * @When I edit my settings with the name :arg1
      */
     public function iEditMyProfileWithTheName($arg1)
     {
@@ -359,7 +359,7 @@ class UserContext implements Context
     }
 
     /**
-     * @When I visit the profiile page
+     * @When I visit the settings page
      */
     public function iVisitTheProfiilePage()
     {
@@ -629,6 +629,17 @@ class UserContext implements Context
 
         if (!$inviteCode) {
             throw new \Exception('No invite code found');
+        }
+    }
+    /**
+     * @Then there will not be an invite code for :arg1
+     */
+    public function thereWillNotBeAnInviteCodeFor($email)
+    {
+        $inviteCode = $this->inviteCodeRepository->findOneBy(['email' => $email]);
+
+        if ($inviteCode) {
+            throw new \Exception('invite code found');
         }
     }
 
