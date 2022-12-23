@@ -44,13 +44,20 @@ class UserContext implements Context
     ) {
     }
 
+
     /**
      * @When I try to sign up
      */
     public function iTryToSignUp()
     {
         $this->count = $this->repository->count([]);
-        $this->sendJsonRequest('POST', '/api/user/signup', $this->formFields);
+        $this->teamCount = $this->teamRepository->count([]);
+
+        $this->session->visit('/user/signup');
+        foreach ($this->formFields as $key => $value) {
+            $this->session->getPage()->fillField("user_sign_up[$key]", $value);
+        }
+        $this->session->getPage()->pressButton('user_signup_submit');
     }
 
     /**
@@ -105,13 +112,17 @@ class UserContext implements Context
         }
     }
 
+
     /**
      * @When I login as :username with the password :password
      * @Given I have logged in as :username with the password :password
      */
     public function iLoginAsWithThePassword($username, $password)
     {
-        $this->sendJsonRequest('POST', '/api/authenticate', ['username' => $username, 'password' => $password]);
+        $this->session->visit('/user/login');
+        $this->session->getPage()->fillField('email', $username);
+        $this->session->getPage()->fillField('password', $password);
+        $this->session->getPage()->pressButton('user_login_submit');
     }
 
     /**
@@ -216,7 +227,9 @@ class UserContext implements Context
     public function iRequestToResetMyPasswordFor($username)
     {
         $this->count = $this->passwordResetRepository->count([]);
-        $this->sendJsonRequest('POST', '/api/user/reset', ['email' => $username]);
+        $this->session->visit('/user/reset');
+        $this->session->getPage()->fillField('password_reset[email]', $username);
+        $this->session->getPage()->pressButton('user_password_reset_submit');
     }
 
     /**
@@ -241,6 +254,7 @@ class UserContext implements Context
         $this->passwordResetRepository->getEntityManager()->flush();
     }
 
+
     /**
      * @When I reset my password to :arg1 with the code :arg2 for :arg3
      */
@@ -249,9 +263,10 @@ class UserContext implements Context
         $user = $this->repository->findOneBy(['email' => $email]);
         $this->passwordHash = $user->getPassword();
 
-        $this->sendJsonRequest('POST', '/api/user/reset/'.$code, ['password' => $password]);
-
         $this->count = $this->passwordResetRepository->count([]);
+        $this->session->visit('/user/reset/'.$code);
+        $this->session->getPage()->fillField('password', $password);
+        $this->session->getPage()->pressButton('user_password_reset_confirm_submit');
     }
 
     /**
@@ -318,15 +333,10 @@ class UserContext implements Context
      */
     public function iEditMyProfileWithTheName($arg1)
     {
-        $this->sendJsonRequest('GET', '/api/user/profile');
-        $content = $this->getJsonContent()['form'];
-        $output = [];
-        foreach ($content as $key => $options) {
-            $output[$key] = $options['value'];
-        }
+        $this->session->visit('/user/profile');
+        $this->session->getPage()->fillField('profile[name]', $arg1);
 
-        $output['name'] = $arg1;
-        $this->sendJsonRequest('POST', '/api/user/profile', $output);
+        $this->session->getPage()->pressButton('user_profile_submit');
     }
 
     /**
@@ -385,9 +395,12 @@ class UserContext implements Context
     /**
      * @When I change my password to :arg1 giving my current password as :arg2
      */
-    public function iChangeMyPasswordToGivingMyCurrentPasswordAs($newPassword, $currentPassword)
+    public function iChangeMyPasswordToGivingMyCurrentPasswordAs($arg1, $arg2)
     {
-        $this->sendJsonRequest('POST', '/api/user/password', ['password' => $currentPassword, 'new_password' => $newPassword]);
+        $this->session->visit('/user/password');
+        $this->session->getPage()->fillField('change_password[password]', $arg2);
+        $this->session->getPage()->fillField('change_password[new_password]', $arg1);
+        $this->session->getPage()->pressButton('user_change_password_submit');
     }
 
     /**
