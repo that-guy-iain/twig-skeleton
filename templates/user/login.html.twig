@@ -64,9 +64,9 @@
             {{ 'parthenon.user.login.please_login'|trans }}
         </h1>
         <label for="inputEmail" class="sr-only">{{ 'parthenon.user.login.form.label.email'|trans }}</label>
-        <input type="email" value="{{ last_username }}" name="email" id="inputEmail" class="form-control" placeholder="{{ 'parthenon.user.login.form.placeholder.email'|trans }}" required autofocus>
+        <input type="email" value="{{ last_username }}" name="_username" id="inputEmail" class="form-control" placeholder="{{ 'parthenon.user.login.form.placeholder.email'|trans }}" required autofocus>
         <label for="inputPassword" class="sr-only">{{ 'parthenon.user.login.form.label.password'|trans }}</label>
-        <input type="password" name="password" id="inputPassword" class="form-control" placeholder="{{ 'parthenon.user.login.form.placeholder.password'|trans }}" required>
+        <input type="password" name="_password" id="inputPassword" class="form-control" placeholder="{{ 'parthenon.user.login.form.placeholder.password'|trans }}" required>
 
         <input type="hidden" name="_csrf_token"
                value="{{ csrf_token('authenticate') }}"

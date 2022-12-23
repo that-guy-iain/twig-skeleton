@@ -11,7 +11,6 @@ security:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
         main:
-            pattern: ^/api/
             stateless: false
             lazy: true
             provider: parthenon
@@ -20,9 +19,10 @@ security:
                 always_remember_me: true
             logout:
                 path: parthenon_user_logout
-            json_login:
-                check_path: /api/authenticate
             user_checker: Parthenon\User\Security\UserChecker\UserCheckerObserver
+            form_login:
+                login_path: parthenon_user_login
+                check_path: parthenon_user_login
     password_hashers:
         Parthenon\User\Entity\UserInterface:
             algorithm: bcrypt
@@ -31,9 +31,8 @@ security:
     # Note: Only the *first* access control that matches will be used
     access_control:
         - { path: ^/athena, roles: ROLE_ADMIN }
-        - { path: ^/api/(authenticate|login|logout), roles: PUBLIC_ACCESS }
-        - { path: ^/api/user/(signup|password|reset|confirm), roles: PUBLIC_ACCESS }
-        - { path: ^/api/, roles: ROLE_USER }
+        - { path: ^/user/settings, roles: ROLE_USER }
+        - { path: ^/user/password, roles: ROLE_USER }
 
 
 when@test:

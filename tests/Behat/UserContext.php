@@ -65,9 +65,7 @@ class UserContext implements Context
      */
     public function iWillSeeAnErrorAboutAnInvalidEmailAddress()
     {
-        $json = json_decode($this->session->getPage()->getContent(), true);
-
-        if (!$json || $json['errors']['email'] !== ['A valid email must be provided.']) {
+        if (!$this->session->getPage()->hasContent('A valid email must be provided.')) {
             throw new \Exception("Can't find an error about an invalid email");
         }
     }
@@ -85,9 +83,7 @@ class UserContext implements Context
      */
     public function iWillSeeAnErrorAboutNotHavingAPassword()
     {
-        $json = json_decode($this->session->getPage()->getContent(), true);
-
-        if (!$json || $json['errors']['password'] !== ['The password must be provided.']) {
+        if (!$this->session->getPage()->hasContent('The password must be provided.')) {
             throw new \Exception("Can't find an error about a missing password");
         }
     }
@@ -119,9 +115,9 @@ class UserContext implements Context
      */
     public function iLoginAsWithThePassword($username, $password)
     {
-        $this->session->visit('/user/login');
-        $this->session->getPage()->fillField('email', $username);
-        $this->session->getPage()->fillField('password', $password);
+        $this->session->visit('/login');
+        $this->session->getPage()->fillField('_username', $username);
+        $this->session->getPage()->fillField('_password', $password);
         $this->session->getPage()->pressButton('user_login_submit');
     }
 
@@ -130,9 +126,7 @@ class UserContext implements Context
      */
     public function iWillSeeALoginError()
     {
-        $content = $this->session->getPage()->getContent();
-        $json = json_decode($content, true);
-        if (is_null($json) || !isset($json['error'])) {
+        if (!$this->session->getPage()->hasContent('Login error')) {
             throw new \Exception("Didn't see an login error");
         }
     }
@@ -194,7 +188,7 @@ class UserContext implements Context
      */
     public function iConfirmTheCode($code)
     {
-        $this->sendJsonRequest('GET', '/api/user/confirm/'.$code);
+        $this->sendJsonRequest('GET', '/user/confirm/'.$code);
     }
 
     /**
@@ -333,8 +327,8 @@ class UserContext implements Context
      */
     public function iEditMyProfileWithTheName($arg1)
     {
-        $this->session->visit('/user/profile');
-        $this->session->getPage()->fillField('profile[name]', $arg1);
+        $this->session->visit('/user/settings');
+        $this->session->getPage()->fillField('settings[name]', $arg1);
 
         $this->session->getPage()->pressButton('user_profile_submit');
     }
@@ -363,7 +357,7 @@ class UserContext implements Context
      */
     public function iVisitTheProfiilePage()
     {
-        $this->session->visit('/api/user/profile');
+        $this->session->visit('/user/settings');
     }
 
     /**
@@ -371,8 +365,8 @@ class UserContext implements Context
      */
     public function iWillBeOnTheLoginPage()
     {
-        if (401 !== $this->session->getStatusCode()) {
-            throw new \Exception('Was not given an unauthorized response');
+        if (false === strpos($this->session->getCurrentUrl(), '/login')) {
+            throw new \Exception('Currently not on the user login page but on '.$this->session->getCurrentUrl());
         }
     }
 
@@ -617,7 +611,7 @@ class UserContext implements Context
      */
     public function iInvite($email)
     {
-        $this->sendJsonRequest('POST', '/api/user/invite', ['email' => $email]);
+        $this->sendJsonRequest('POST', '/user/invite', ['email' => $email]);
     }
 
     /**
@@ -664,7 +658,7 @@ class UserContext implements Context
         $this->count = $this->repository->count([]);
 
         $this->count = $this->repository->count([]);
-        $this->sendJsonRequest('POST', '/api/user/signup/'.$code, $this->formFields);
+        $this->sendJsonRequest('POST', '/user/signup/'.$code, $this->formFields);
     }
 
     /**
@@ -772,7 +766,7 @@ class UserContext implements Context
      */
     public function iSentAnInviteTo($email)
     {
-        $this->sendJsonRequest('POST', '/api/user/team/invite', ['email' => $email]);
+        $this->sendJsonRequest('POST', '/user/team/invite', ['email' => $email]);
     }
 
     /**

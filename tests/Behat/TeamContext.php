@@ -27,7 +27,7 @@ class TeamContext implements Context
      */
     public function iViewTheTeamView()
     {
-        $this->sendJsonRequest('GET', '/api/user/team');
+        $this->sendJsonRequest('GET', '/user/team');
     }
 
     /**
@@ -63,7 +63,7 @@ class TeamContext implements Context
         /** @var InviteCode $inviteCode */
         $inviteCode = $this->inviteCodeRepository->findOneBy(['email' => $email]);
 
-        $this->sendJsonRequest('POST', '/api/user/team/invite/'.$inviteCode->getId().'/cancel');
+        $this->sendJsonRequest('POST', '/user/team/invite/'.$inviteCode->getId().'/cancel');
     }
 
     /**
